@@ -12,6 +12,9 @@ const angleMap = [
     { angle: 360, value: 0 }
   ];
 
+
+
+
 // Audio System
 class DialAudioSystem {
   constructor() {
@@ -125,8 +128,9 @@ const audioSystem = new DialAudioSystem();
       const propX = vmi.number("x-coordinate");
       const propY = vmi.number("y-coordinate");
       const propDial = vmi.number("dial-value");
+      const propAngle = vmi.number("angle");
   
-      if (!propX || !propY || !propDial) {
+      if (!propX || !propY || !propDial || !propAngle) {
         console.error("Could not access properties in view model");
         return;
       }
@@ -156,6 +160,34 @@ const audioSystem = new DialAudioSystem();
           }
         }
       };
+
+      document.getElementById("enableMotion")
+  .addEventListener("click", enableGyro);
+
+      function enableGyro() {
+        if (typeof DeviceMotionEvent.requestPermission === "function") {
+          DeviceMotionEvent.requestPermission().then(response => {
+            if (response === "granted") startGyro();
+          }).catch(console.error);
+        } else {
+          startGyro();
+        }
+      }
+
+      function startGyro() {
+        console.log("📱 Gyroscope enabled");
+      
+        window.addEventListener("deviceorientation", (e) => {
+          if (e.alpha === null) return;
+      
+          const alpha = e.alpha;   // 0–360 rotation
+          const angleValue = alpha; // direct mapping
+      
+          // Send to your Rive number input
+          propAngle.value = angleValue;
+      
+        });
+      }
   
       // Subscribe to changes
       propX.on(() => recompute());
